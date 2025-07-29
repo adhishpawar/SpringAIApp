@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class GeminiController {
+public class OpenAiController {
 
     @Autowired
     private VertexAiGeminiChatModel chatModel;

@@ -6,31 +6,35 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class OpenAiController {
+public class OllamaController {
 
     private final ChatClient chatClient;
 
     //For more than one models are in use
-//   public OpenAiController(OpenAiChatModel chatModel){
-//       this.chatClient = ChatClient.create(chatModel);
-//   }
+   public OllamaController(OllamaChatModel chatModel){
+       this.chatClient = ChatClient.create(chatModel);
+   }
 
-    ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
+//    ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
+//
+//    //For single model in use
+//    public OllamaController(ChatClient.Builder builder){
+//        this.chatClient = builder
+//                .defaultAdvisors(MessageChatMemoryAdvisor
+//                        .builder(chatMemory)
+//                        .build())
+//                .build();
+//    }
 
-    //For single model in use
-    public OpenAiController(ChatClient.Builder builder){
-        this.chatClient = builder
-                .defaultAdvisors(MessageChatMemoryAdvisor
-                        .builder(chatMemory)
-                        .build())
-                .build();
-    }
-
-    @PostMapping("/api/{message}")
+//    @PostMapping("/api/{message}")
     public ResponseEntity<String> getAnswer(@PathVariable String message) {
         ChatResponse chatResponse = chatClient
                 .prompt(message)

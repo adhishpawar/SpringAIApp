@@ -6,8 +6,13 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class OpenAiController {
@@ -15,20 +20,20 @@ public class OpenAiController {
     private final ChatClient chatClient;
 
     //For more than one models are in use
-//   public OpenAiController(OpenAiChatModel chatModel){
-//       this.chatClient = ChatClient.create(chatModel);
-//   }
+   public OpenAiController(OpenAiChatModel chatModel){
+       this.chatClient = ChatClient.create(chatModel);
+   }
 
-    ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
+//    ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
 
     //For single model in use
-    public OpenAiController(ChatClient.Builder builder){
-        this.chatClient = builder
-                .defaultAdvisors(MessageChatMemoryAdvisor
-                        .builder(chatMemory)
-                        .build())
-                .build();
-    }
+//    public OpenAiController(ChatClient.Builder builder){
+//        this.chatClient = builder
+//                .defaultAdvisors(MessageChatMemoryAdvisor
+//                        .builder(chatMemory)
+//                        .build())
+//                .build();
+//    }
 
     @PostMapping("/api/{message}")
     public ResponseEntity<String> getAnswer(@PathVariable String message) {
@@ -46,5 +51,36 @@ public class OpenAiController {
                 .getText();
 
         return  ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("api/recommend")
+    public String recommend(@RequestParam String type, @RequestParam String year, @RequestParam String lang){
+
+       String tempt = """
+                            I want to watch a {type} movie tonight with good rating,
+                             looking for movies around this year {year}.
+                             The language i am looking for is {lang}
+                             Suggest one specific movie and tell me the cast and length of the movie.
+                             
+                             response format should be:
+                             1.movie name
+                             2.basic plot
+                             3. cast
+                             4.length
+                             5.IMDB rating
+                  
+                      """;
+
+        PromptTemplate promptTemplate = new PromptTemplate(tempt);
+        Prompt prompt = promptTemplate.create(Map.of("type", type,  "year", year,"lang", lang));
+
+        String response = chatClient
+                .prompt(prompt)
+                .call()
+                .content();
+
+
+        return response;
     }
 }

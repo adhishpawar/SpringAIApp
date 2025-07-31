@@ -2,22 +2,30 @@ package com.adhish.SpringAICode;
 
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+
+
 @RestController
 public class OpenAiController {
 
     private final ChatClient chatClient;
+
+    @Autowired
+    @Qualifier("openAiEmbeddingModel")
+    private EmbeddingModel embeddingModel;
+
+
 
     //For more than one models are in use
    public OpenAiController(OpenAiChatModel chatModel){
@@ -83,4 +91,11 @@ public class OpenAiController {
 
         return response;
     }
+
+    @PostMapping("/api/embedding")
+    public float[] embedding(@RequestParam String text){
+            return embeddingModel.embed(text);
+    }
+
+
 }
